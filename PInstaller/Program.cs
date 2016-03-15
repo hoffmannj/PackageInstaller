@@ -55,7 +55,7 @@ namespace PInstaller
         public void ShowHelp()
         {
             Console.WriteLine("Usage:");
-            Console.WriteLine("\tPackageInstaller <command> <parameters>");
+            Console.WriteLine("\tPInstaller <command> <parameters>");
             Console.WriteLine();
             Console.WriteLine("Command: install");
             Console.WriteLine("Parameters: -p <packageZipFile> -c <configFile> [-v]");

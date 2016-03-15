@@ -45,6 +45,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't remove Application: {0}", app.Name));
                     }
                 }
@@ -68,6 +69,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't create Application: {0}", app.Name));
                     }
                 }

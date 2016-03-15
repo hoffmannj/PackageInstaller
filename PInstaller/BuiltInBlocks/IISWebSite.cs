@@ -38,20 +38,20 @@ namespace PInstaller.BuiltInBlocks
                 {
                     Console.WriteLine("Removing existing sites...");
                     var existingSites = iisManager.Sites.ToList();
-                    foreach (var site in existingSites)
+                    foreach (var website in websites)
                     {
                         try
                         {
-                            if (websites.Any(ws => ws.Name.ToLower() == site.Name.ToLower()))
-                            {
-                                Console.WriteLine("\tWebSite: {0}", site.Name);
-                                iisManager.Sites.Remove(site);
-                            }
+                            if (!iisManager.Sites.Any(site => site.Name.ToLower() == website.Name.ToLower())) continue;
+                            Console.WriteLine("\tWebSite: {0}", website.Name);
+                            var wsite = iisManager.Sites.First(site => site.Name.ToLower() == website.Name.ToLower());
+                            iisManager.Sites.Remove(wsite);
                             iisManager.CommitChanges();
                         }
                         catch (Exception ex)
                         {
-                            throw new PluginException(true, string.Format("Couldn't remove WebSite: {0}", site.Name));
+                            if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
+                            throw new PluginException(true, string.Format("Couldn't remove WebSite: {0}", website.Name));
                         }
                     }
                 }
@@ -69,6 +69,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't create WebSite: {0}", site.Name));
                     }
                 }

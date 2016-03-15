@@ -26,6 +26,7 @@ namespace PInstaller.BuiltInBlocks
                 }
                 catch (Exception ex)
                 {
+                    if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                     throw new PluginException(true, string.Format("Couldn't create folder: {0}", folder));
                 }
             }

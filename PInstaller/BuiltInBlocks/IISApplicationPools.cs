@@ -55,6 +55,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't remove ApplicationPool: {0}", appPool.Name));
                     }
                 }
@@ -79,6 +80,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't create ApplicationPool: {0}", appPool.Name));
                     }
                 }

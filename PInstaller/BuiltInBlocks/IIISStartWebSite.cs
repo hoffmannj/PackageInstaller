@@ -32,6 +32,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         Console.WriteLine("Couldn't start WebSite: {0}", site);
                     }
                 }

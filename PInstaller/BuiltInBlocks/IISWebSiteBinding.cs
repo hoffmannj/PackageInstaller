@@ -60,6 +60,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         throw new PluginException(true, string.Format("Couldn't remove bindings for WebSite: {0}", site));
                     }
                 }
@@ -95,6 +96,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
+                        if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                         Console.WriteLine("Couldn't create binding: {0}, {1}", binding.WebSiteName, bindingInfo);
                     }
                 }

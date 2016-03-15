@@ -44,6 +44,7 @@ namespace PInstaller.BuiltInBlocks
                 }
                 catch (Exception ex)
                 {
+                    if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
                     var msg = string.Format("Couldn't copy file: \nFrom: {0}\nTo: {1}", copy.SourcePath, copy.TargetPath);
                     if (!copy.Critical) Console.WriteLine(msg);
                     else throw new PluginException(copy.Critical, msg);
