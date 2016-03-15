@@ -27,6 +27,7 @@ namespace PInstaller.BuiltInBlocks
                 Protocol = "http";
                 HostHeader = string.Empty;
                 CertificateName = string.Empty;
+                ServerNameIndication = false;
             }
         }
 
