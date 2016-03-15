@@ -40,13 +40,20 @@ namespace PInstaller.BuiltInBlocks
                     var existingSites = iisManager.Sites.ToList();
                     foreach (var site in existingSites)
                     {
-                        if (websites.Any(ws => ws.Name.ToLower() == site.Name.ToLower()))
+                        try
                         {
-                            Console.WriteLine("\tWebSite: {0}", site.Name);
-                            iisManager.Sites.Remove(site);
+                            if (websites.Any(ws => ws.Name.ToLower() == site.Name.ToLower()))
+                            {
+                                Console.WriteLine("\tWebSite: {0}", site.Name);
+                                iisManager.Sites.Remove(site);
+                            }
+                            iisManager.CommitChanges();
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new PluginException(true, string.Format("Couldn't remove WebSite: {0}", site.Name));
                         }
                     }
-                    iisManager.CommitChanges();
                 }
 
                 Console.WriteLine("Settin up WebSites...");

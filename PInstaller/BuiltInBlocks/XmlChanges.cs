@@ -50,7 +50,7 @@ namespace PInstaller.BuiltInBlocks
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error: Couldn't change values in XML file");
+                    Console.WriteLine("Couldn't change values in XML file: {0}", change.NodeXPath);
                     if (mainParameters.IsVerbose()) Console.WriteLine(ex.Message);
                 }
             }

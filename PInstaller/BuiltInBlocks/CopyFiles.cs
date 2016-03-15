@@ -12,10 +12,12 @@ namespace PInstaller.BuiltInBlocks
             public string SourcePath { get; set; }
             public string TargetPath { get; set; }
             public bool Overwrite { get; set; }
+            public bool Critical { get; set; }
 
             public Parameters()
             {
                 Overwrite = true;
+                Critical = false;
             }
         }
 
@@ -38,11 +40,13 @@ namespace PInstaller.BuiltInBlocks
                     System.IO.File.Copy(
                         copy.SourcePath.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder()),
                         copy.TargetPath.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder()),
-                        true);
+                        copy.Overwrite);
                 }
                 catch (Exception ex)
                 {
-                    throw new PluginException(true, string.Format("Couldn't copy file: \nFrom: {0}\nTo: {1}", copy.SourcePath, copy.TargetPath));
+                    var msg = string.Format("Couldn't copy file: \nFrom: {0}\nTo: {1}", copy.SourcePath, copy.TargetPath);
+                    if (!copy.Critical) Console.WriteLine(msg);
+                    else throw new PluginException(copy.Critical, msg);
                 }
             }
         }

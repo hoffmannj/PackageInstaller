@@ -30,32 +30,46 @@ namespace PInstaller.BuiltInBlocks
             using (var iisManager = new ServerManager())
             {
 
-                Console.WriteLine("Removing existing applicatins...");
+                Console.WriteLine("Removing existing applications...");
                 foreach (var app in apps)
                 {
-                    var website = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == app.WebSiteName.ToLower());
-                    if (website == null) continue;
-                    var wapp = website.Applications.FirstOrDefault(a => a.Path.ToLower() == app.Name.ToLower());
-                    if (wapp == null) continue;
-                    Console.WriteLine("\tWebSite: {0}   Path: {1}", app.WebSiteName, app.Name);
-                    website.Applications.Remove(wapp);
-                    iisManager.CommitChanges();
+                    try
+                    {
+                        var website = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == app.WebSiteName.ToLower());
+                        if (website == null) continue;
+                        var wapp = website.Applications.FirstOrDefault(a => a.Path.ToLower() == app.Name.ToLower());
+                        if (wapp == null) continue;
+                        Console.WriteLine("\tWebSite: {0}   Path: {1}", app.WebSiteName, app.Name);
+                        website.Applications.Remove(wapp);
+                        iisManager.CommitChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new PluginException(true, string.Format("Couldn't remove Application: {0}", app.Name));
+                    }
                 }
 
                 Console.WriteLine("Setting up Applications...");
                 foreach (var app in apps)
                 {
-                    var website = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == app.WebSiteName.ToLower());
-                    if (website == null)
+                    try
                     {
-                        Console.WriteLine("\tUnknown WebSite: {0}", app.WebSiteName);
-                        continue;
+                        var website = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == app.WebSiteName.ToLower());
+                        if (website == null)
+                        {
+                            Console.WriteLine("\tUnknown WebSite: {0}", app.WebSiteName);
+                            continue;
+                        }
+                        Console.WriteLine("\tWebSite: {0}  Path: {1}", app.WebSiteName, app.Name);
+                        var appTF = app.TargetFolder.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder());
+                        var newApp = website.Applications.Add("/" + app.Name, appTF);
+                        newApp.ApplicationPoolName = app.ApplicationPoolName;
+                        iisManager.CommitChanges();
                     }
-                    Console.WriteLine("\tWebSite: {0}  Path: {1}", app.WebSiteName, app.Name);
-                    var appTF = app.TargetFolder.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder());
-                    var newApp = website.Applications.Add("/" + app.Name, appTF);
-                    newApp.ApplicationPoolName = app.ApplicationPoolName;
-                    iisManager.CommitChanges();
+                    catch (Exception ex)
+                    {
+                        throw new PluginException(true, string.Format("Couldn't create Application: {0}", app.Name));
+                    }
                 }
             }
         }

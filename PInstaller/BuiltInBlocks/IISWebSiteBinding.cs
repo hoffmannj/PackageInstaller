@@ -57,18 +57,21 @@ namespace PInstaller.BuiltInBlocks
                         website.Bindings.Clear();
                         iisManager.CommitChanges();
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        throw new PluginException(true, string.Format("Couldn't remove bindings for WebSite: {0}", site));
+                    }
                 }
 
                 Console.WriteLine("Setting bindings...");
                 foreach (var binding in bindings)
                 {
                     Console.WriteLine("\tWebSite: {0}  Protocol: {1}", binding.WebSiteName, binding.Protocol);
+                    var bindingInfo = string.Format("{0}:{1}:{2}", binding.IPAddress, binding.Port, binding.HostHeader);
                     try
                     {
                         var site = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == binding.WebSiteName.ToLower());
                         if (site == null) continue;
-                        var bindingInfo = string.Format("{0}:{1}:{2}", binding.IPAddress, binding.Port, binding.HostHeader);
                         if (!string.IsNullOrEmpty(binding.CertificateName))
                         {
                             var hash = GetCertificateHash(binding.CertificateName);
@@ -91,7 +94,7 @@ namespace PInstaller.BuiltInBlocks
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Error: {0}", ex.Message);
+                        Console.WriteLine("Couldn't create binding: {0}, {1}", binding.WebSiteName, bindingInfo);
                     }
                 }
             }

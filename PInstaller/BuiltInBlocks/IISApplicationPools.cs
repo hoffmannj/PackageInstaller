@@ -42,32 +42,46 @@ namespace PInstaller.BuiltInBlocks
                 Console.WriteLine("Removing existing ApplicationPools...");
                 foreach (var appPool in appPools)
                 {
-                    var pool = iisManager.ApplicationPools.FirstOrDefault(ap => ap.Name.ToLower() == appPool.Name.ToLower());
-                    if (pool != null)
+                    try
                     {
-                        Console.WriteLine("\tApplicationPool: {0}", appPool.Name);
-                        pool.Stop();
-                        iisManager.ApplicationPools.Remove(pool);
+                        var pool = iisManager.ApplicationPools.FirstOrDefault(ap => ap.Name.ToLower() == appPool.Name.ToLower());
+                        if (pool != null)
+                        {
+                            Console.WriteLine("\tApplicationPool: {0}", appPool.Name);
+                            pool.Stop();
+                            iisManager.ApplicationPools.Remove(pool);
+                        }
+                        iisManager.CommitChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new PluginException(true, string.Format("Couldn't remove ApplicationPool: {0}", appPool.Name));
                     }
                 }
-                iisManager.CommitChanges();
 
                 Console.WriteLine("Creating ApplicationPools...");
                 foreach (var appPool in appPools)
                 {
-                    Console.WriteLine("\tApplicationPool: {0}", appPool.Name);
-                    ApplicationPool newPool = iisManager.ApplicationPools.Add(appPool.Name);
-                    newPool.ManagedRuntimeVersion = appPool.ManagedRuntimeVersion;
-                    newPool.AutoStart = appPool.AutoStart;
-                    newPool.Enable32BitAppOnWin64 = appPool.Enable32Bit;
-                    newPool.ManagedPipelineMode = appPool.IsIntegrated ? ManagedPipelineMode.Integrated : ManagedPipelineMode.Classic;
-                    newPool.Recycling.PeriodicRestart.PrivateMemory = 1024 * 1024;
-                    newPool.Recycling.PeriodicRestart.Time = TimeSpan.Zero;
-                    newPool.ProcessModel.IdleTimeout = TimeSpan.Zero;
-                    var attr = newPool.Attributes.FirstOrDefault(a => a.Name == "startMode");
-                    if (attr != null) attr.Value = appPool.AlwaysRunning ? 1 : 0; // OnDemand = 0;   AlwaysRunning = 1
+                    try
+                    {
+                        Console.WriteLine("\tApplicationPool: {0}", appPool.Name);
+                        ApplicationPool newPool = iisManager.ApplicationPools.Add(appPool.Name);
+                        newPool.ManagedRuntimeVersion = appPool.ManagedRuntimeVersion;
+                        newPool.AutoStart = appPool.AutoStart;
+                        newPool.Enable32BitAppOnWin64 = appPool.Enable32Bit;
+                        newPool.ManagedPipelineMode = appPool.IsIntegrated ? ManagedPipelineMode.Integrated : ManagedPipelineMode.Classic;
+                        newPool.Recycling.PeriodicRestart.PrivateMemory = 1024 * 1024;
+                        newPool.Recycling.PeriodicRestart.Time = TimeSpan.Zero;
+                        newPool.ProcessModel.IdleTimeout = TimeSpan.Zero;
+                        var attr = newPool.Attributes.FirstOrDefault(a => a.Name == "startMode");
+                        if (attr != null) attr.Value = appPool.AlwaysRunning ? 1 : 0; // OnDemand = 0;   AlwaysRunning = 1
+                        iisManager.CommitChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new PluginException(true, string.Format("Couldn't create ApplicationPool: {0}", appPool.Name));
+                    }
                 }
-                iisManager.CommitChanges();
             }
         }
 
