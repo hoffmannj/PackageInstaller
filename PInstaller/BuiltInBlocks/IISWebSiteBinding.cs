@@ -74,6 +74,7 @@ namespace PInstaller.BuiltInBlocks
                     {
                         var site = iisManager.Sites.FirstOrDefault(s => s.Name.ToLower() == binding.WebSiteName.ToLower());
                         if (site == null) continue;
+                        Binding newBinding = null;
                         if (!string.IsNullOrEmpty(binding.CertificateName))
                         {
                             var hash = GetCertificateHash(binding.CertificateName);
@@ -81,16 +82,19 @@ namespace PInstaller.BuiltInBlocks
                             {
                                 throw new Exception(string.Format("Couldn't find certificate: {0}", binding.CertificateName));
                             }
-                            var newBinding = site.Bindings.Add(bindingInfo, hash.Item2, hash.Item1);
+                            newBinding = site.Bindings.Add(bindingInfo, hash.Item2, hash.Item1);
+                        }
+                        else
+                        {
+                            newBinding = site.Bindings.Add(bindingInfo, binding.Protocol);
+                        }
+                        if (newBinding != null)
+                        {
                             var flag = newBinding.Attributes.FirstOrDefault(a => a.Name.ToLower() == "sslflags");
                             if (flag != null && binding.ServerNameIndication)
                             {
                                 flag.Value = 1;
                             }
-                        }
-                        else
-                        {
-                            var newBinding = site.Bindings.Add(bindingInfo, binding.Protocol);
                         }
                         iisManager.CommitChanges();
                     }
