@@ -4,12 +4,15 @@ This is small tool that can be used to install a package (zip file).
 Usage:
 * PInstaller.exe certificates  
 That command lists the available certificates. (useful for finding certificate for SSL in IIS)
-* PInstaller.exe -p < packageFilePath >  -c < configFilePath > [-v]  
+* PInstaller.exe -p < packageFilePath >  -c < configFilePath > [-b < blocks >] [-v]  
 That command installs the package according to the config file. -v means verbose.  
+< blocks > is a comma sparated list of blocks to execute.  
   
 The tool is extendable with plugins. It has a couple built-in plugins:
 * CopyFiles
 * CreateFolders
+* EmptyFolders
+* ExtractPackageToFolder
 * IISStartWebSite
 * IISApplicationPools
 * IISWebApplication
@@ -22,7 +25,7 @@ The plugin interface is really simple. It looks like this:
 ```C#
 public interface PIPlugin
 {
-	string BlockName();
+	string BlockType();
 	void Process(string jsonBlock, MainParameters mainParameters);
 }
 ```
@@ -39,7 +42,8 @@ The config file is basically a JSON file. An empty config file looks like this:
 This is an example "CopyFiles" command block:
 ```Javascript
 {
-	"BlockName" : "CopyFiles",
+	"BlockName" : "CopyWebConfig",
+    "BlockType" : "CopyFiles",
 	"Parameters" : [
 		{
 			"SourcePath" : "web.config",
@@ -52,7 +56,7 @@ This is an example "CopyFiles" command block:
 
 NOTE: "{%PackageTargetFolder%}" is the only placeholder you can use in the config file.
 
-The "Plugins" field is a string array. Add the full name of the Plugin class you'd like to use. A plugin is responsible for a "BlockName", and there can be only one plugin to handle a "BlockName".
+The "Plugins" field is a string array. Add the full name of the Plugin class (assemblyqualifiedname for example) you'd like to use. A plugin is responsible for a "BlockType", and there can be only one plugin to handle a "BlockType".
   
-For more details about the built-in plugins take a look at the code.
+For more details about the built-in plugins take a look into the code.
   
