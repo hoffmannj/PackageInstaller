@@ -17,7 +17,7 @@ namespace PInstaller.BuiltInBlocks
             public string ApplicationPoolName { get; set; }
         }
 
-        public string BlockName()
+        public string BlockType()
         {
             return "IISWebApplications";
         }

@@ -31,6 +31,9 @@ namespace PInstaller
         [Option('c', "config", Required = true)]
         public string ConfigFile { get; set; }
 
+        [Option('b', "block", Required = false)]
+        public string Block { get; set; }
+
         [Option('v', "verbose")]
         public bool Verbose { get; set; }
     }

@@ -9,7 +9,7 @@ namespace PInstaller.BuiltInBlocks
 {
     class IIISStartWebSite : PIPlugin
     {
-        public string BlockName()
+        public string BlockType()
         {
             return "IISStartWebSite";
         }

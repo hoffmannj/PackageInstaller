@@ -58,8 +58,9 @@ namespace PInstaller
             Console.WriteLine("\tPInstaller <command> <parameters>");
             Console.WriteLine();
             Console.WriteLine("Command: install");
-            Console.WriteLine("Parameters: -p <packageZipFile> -c <configFile> [-v]");
+            Console.WriteLine("Parameters: -p <packageZipFile> -c <configFile> [-b <blocks>] [-v]");
             Console.WriteLine("Description: Installs a package according to the contents of the config file. '-v' means verbose output.");
+            Console.WriteLine("\t<blocks> is a comma sparated list of blocks to execute");
             Console.WriteLine();
             Console.WriteLine("Command: certificates");
             Console.WriteLine("Description: Prints out a list of available certificate names.");
@@ -96,15 +97,25 @@ namespace PInstaller
             AddBuiltInPlugins();
             var config = ValidateConfig(options.ConfigFile, options.Verbose);
             if (config == null) return;
-            var mainParams = new MainParametersImpl(config.TargetFolder, options.Verbose);
-            if (!SetupTargetFolder(options.PackageFile, mainParams)) return;
+            var mainParams = new MainParametersImpl(options.PackageFile, config.TargetFolder, options.Verbose);
+            var blocksToExecute = (options.Block ?? "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries).Select(b => b.Trim()).Distinct().ToList();
+            foreach (var block in blocksToExecute)
+            {
+                if (!config.Blocks.Any(b => b.BlockName.ToLower() == block.ToLower()))
+                {
+                    Console.WriteLine("Block doesn't exist in the config file: {0}", block);
+                    return;
+                }
+            }
             foreach (var block in config.Blocks)
             {
-                if (plugins.ContainsKey(block.BlockName))
+                if (blocksToExecute.Count > 0 && !blocksToExecute.Any(b => b.ToLower() == block.BlockName.ToLower())) continue;
+
+                if (plugins.ContainsKey(block.BlockType))
                 {
                     try
                     {
-                        plugins[block.BlockName].Process(JsonConvert.SerializeObject(block.Parameters), mainParams);
+                        plugins[block.BlockType].Process(JsonConvert.SerializeObject(block.Parameters), mainParams);
                     }
                     catch (PluginException pe)
                     {
@@ -141,7 +152,7 @@ namespace PInstaller
             foreach (var type in builtInPlugins)
             {
                 var p = Activator.CreateInstance(type) as PIPlugin;
-                if (p != null) plugins.Add(p.BlockName(), p);
+                if (p != null) plugins.Add(p.BlockType(), p);
             }
         }
 
@@ -188,14 +199,14 @@ namespace PInstaller
                         if (verbose) Console.WriteLine(msg);
                         throw new Exception(msg);
                     }
-                    var blockName = obj.BlockName();
-                    if (plugins.ContainsKey(blockName))
+                    var blockType = obj.BlockType();
+                    if (plugins.ContainsKey(blockType))
                     {
-                        var msg = string.Format("A plugin with the same BlockName already exists: {0}", blockName);
+                        var msg = string.Format("A plugin with the same BlockType already exists: {0}", blockType);
                         if (verbose) Console.WriteLine(msg);
                         throw new Exception(msg);
                     }
-                    plugins[blockName] = obj;
+                    plugins[blockType] = obj;
                 }
             }
             catch (Exception ex)
@@ -207,77 +218,15 @@ namespace PInstaller
 
             foreach (var block in config.Blocks)
             {
-                if (!plugins.ContainsKey(block.BlockName))
+                if (!plugins.ContainsKey(block.BlockType))
                 {
-                    Console.WriteLine("There is no matching plugin for block: {0}", block.BlockName);
+                    Console.WriteLine("There is no matching plugin for block: {0}", block.BlockType);
                     plugins.Clear();
                     return null;
                 }
             }
 
             return config;
-        }
-
-        private bool ClearTargetFolder(MainParameters mainParams)
-        {
-            try
-            {
-                Console.WriteLine("Setting up target folder...");
-                if (!System.IO.Directory.Exists(mainParams.GetTargetFolder()))
-                {
-                    System.IO.Directory.CreateDirectory(mainParams.GetTargetFolder());
-                }
-                Action<string> DelPath = null;
-                DelPath = p =>
-                {
-                    System.IO.Directory.EnumerateFiles(p).ToList().ForEach(System.IO.File.Delete);
-                    System.IO.Directory.EnumerateDirectories(p).ToList().ForEach(DelPath);
-                    System.IO.Directory.EnumerateDirectories(p).ToList().ForEach(System.IO.Directory.Delete);
-                };
-                DelPath(mainParams.GetTargetFolder());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: Couldn't create the target folder");
-                if (mainParams.IsVerbose()) Console.WriteLine(ex.Message);
-                return false;
-            }
-            return true;
-        }
-
-        private bool ExtractPackageToTargetFolder(string packageFile, MainParameters mainParams)
-        {
-            try
-            {
-                Console.Write("Extracting files... 0%");
-                var zf = ZipFile.Open(packageFile, ZipArchiveMode.Read);
-                var entriesCount = zf.Entries.Count;
-                int i = 0;
-                foreach (var ze in zf.Entries)
-                {
-                    ++i;
-                    var p = (i * 100) / entriesCount;
-                    var target = System.IO.Path.Combine(mainParams.GetTargetFolder(), ze.FullName);
-                    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(target));
-                    if (!string.IsNullOrEmpty(System.IO.Path.GetFileName(target))) ze.ExtractToFile(target);
-                    Console.Write("\rExtracting files... {0}%", p);
-                }
-                Console.WriteLine();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("\nError: Couldn't extract the files to the target folder");
-                if (mainParams.IsVerbose()) Console.WriteLine(ex.Message);
-                return false;
-            }
-            return true;
-        }
-
-        private bool SetupTargetFolder(string packageFile, MainParameters mainParams)
-        {
-            if (!ClearTargetFolder(mainParams)) return false;
-            if (!ExtractPackageToTargetFolder(packageFile, mainParams)) return false;
-            return true;
         }
     }
 }

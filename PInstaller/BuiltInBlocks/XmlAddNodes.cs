@@ -15,7 +15,7 @@ namespace PInstaller.BuiltInBlocks
             public string PlusNode { get; set; }
         }
 
-        public string BlockName()
+        public string BlockType()
         {
             return "XmlAddNodes";
         }

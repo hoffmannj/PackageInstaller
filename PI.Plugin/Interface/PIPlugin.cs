@@ -3,7 +3,7 @@ namespace PI.Plugin.Interface
 {
     public interface PIPlugin
     {
-        string BlockName();
+        string BlockType();
         void Process(string jsonBlock, MainParameters mainParameters);
     }
 }

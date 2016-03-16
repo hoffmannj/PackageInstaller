@@ -16,7 +16,7 @@ namespace PInstaller.BuiltInBlocks
             public string Value { get; set; }
         }
 
-        public string BlockName()
+        public string BlockType()
         {
             return "XmlChanges";
         }

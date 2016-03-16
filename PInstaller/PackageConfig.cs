@@ -18,6 +18,7 @@ namespace PInstaller
     class BlockConfig
     {
         public string BlockName { get; set; }
+        public string BlockType { get; set; }
         public object Parameters { get; set; }
     }
 }

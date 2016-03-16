@@ -22,7 +22,7 @@ namespace PInstaller.BuiltInBlocks
         }
 
 
-        public string BlockName()
+        public string BlockType()
         {
             return "CopyFiles";
         }

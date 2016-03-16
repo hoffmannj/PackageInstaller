@@ -2,32 +2,35 @@
 using PI.Plugin.Interface;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace PInstaller.BuiltInBlocks
 {
-    class CreateFolders : PIPlugin
+    class EmptyFolders : PIPlugin
     {
         public string BlockType()
         {
-            return "CreateFolders";
+            return "EmptyFolders";
         }
 
         public void Process(string jsonBlock, MainParameters mainParameters)
         {
             var folders = GetData(jsonBlock);
             if (folders.Count == 0) return;
-            Console.WriteLine("Creating folders...");
+            Console.WriteLine("Clearing folders...");
             foreach (var folder in folders)
             {
                 try
                 {
                     Console.WriteLine("\tFolder: {0}", folder);
-                    System.IO.Directory.CreateDirectory(folder.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder()));
+                    EmptyFolder(folder.Replace("{%PackageTargetFolder%}", mainParameters.GetTargetFolder()));
                 }
                 catch (Exception ex)
                 {
                     if (mainParameters.IsVerbose()) Console.WriteLine("Error: {0}", ex.Message);
-                    throw new PluginException(true, string.Format("Couldn't create folder: {0}", folder));
+                    throw new PluginException(true, string.Format("Couldn't empty folder: {0}", folder));
                 }
             }
         }
@@ -44,6 +47,13 @@ namespace PInstaller.BuiltInBlocks
                 throw new PluginException(true, "Couldn't parse config block");
             }
             return data;
+        }
+
+        private void EmptyFolder(string path)
+        {
+            System.IO.Directory.EnumerateFiles(path).ToList().ForEach(System.IO.File.Delete);
+            System.IO.Directory.EnumerateDirectories(path).ToList().ForEach(EmptyFolder);
+            System.IO.Directory.EnumerateDirectories(path).ToList().ForEach(System.IO.Directory.Delete);
         }
     }
 }
