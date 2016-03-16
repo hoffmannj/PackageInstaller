@@ -216,8 +216,16 @@ namespace PInstaller
                 return null;
             }
 
+            var names = new HashSet<string>();
             foreach (var block in config.Blocks)
             {
+                if (names.Contains(block.BlockName))
+                {
+                    Console.WriteLine("BlockName is duplicated: {0}", block.BlockName);
+                    plugins.Clear();
+                    return null;
+                }
+                names.Add(block.BlockName);
                 if (!plugins.ContainsKey(block.BlockType))
                 {
                     Console.WriteLine("There is no matching plugin for block: {0}", block.BlockType);
