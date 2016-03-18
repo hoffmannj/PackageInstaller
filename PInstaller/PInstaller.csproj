@@ -61,6 +61,7 @@
     <Compile Include="BuiltInBlocks\ExtractPackageToFolder.cs" />
     <Compile Include="BuiltInBlocks\IIISStartWebSite.cs" />
     <Compile Include="BuiltInBlocks\IISApplicationPools.cs" />
+    <Compile Include="BuiltInBlocks\IISStartApplicationPool.cs" />
     <Compile Include="BuiltInBlocks\IISWebApplication.cs" />
     <Compile Include="BuiltInBlocks\IISWebSite.cs" />
     <Compile Include="BuiltInBlocks\IISWebSiteBinding.cs" />
