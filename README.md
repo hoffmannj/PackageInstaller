@@ -18,6 +18,7 @@ The tool is extendable with plugins. It has a couple built-in plugins:
 * IISWebApplication
 * IISWebSite
 * IISWebSiteBinding
+* IISStartApplicationPool
 * XmlAddNodes
 * XmlChanges  
 
