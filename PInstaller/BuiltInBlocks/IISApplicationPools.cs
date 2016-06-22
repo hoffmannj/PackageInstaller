@@ -48,7 +48,14 @@ namespace PInstaller.BuiltInBlocks
                         if (pool != null)
                         {
                             Console.WriteLine("\tApplicationPool: {0}", appPool.Name);
-                            pool.Stop();
+                            if (pool.State != ObjectState.Stopped)
+                            {
+                                try
+                                {
+                                    pool.Stop();
+                                }
+                                catch { }
+                            }
                             iisManager.ApplicationPools.Remove(pool);
                         }
                         iisManager.CommitChanges();
