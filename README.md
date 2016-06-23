@@ -4,7 +4,7 @@ This is small tool that can be used to install a package (zip file).
 Usage:
 * PInstaller.exe certificates  
 That command lists the available certificates. (useful for finding certificate for SSL in IIS)
-* PInstaller.exe -p < packageFilePath >  -c < configFilePath > [-b < blocks >] [-v]  
+* PInstaller.exe install -p < packageFilePath >  -c < configFilePath > [-b < blocks >] [-v]  
 That command installs the package according to the config file. -v means verbose.  
 < blocks > is a comma sparated list of blocks to execute.  
   
@@ -44,7 +44,7 @@ This is an example "CopyFiles" command block:
 ```Javascript
 {
 	"BlockName" : "CopyWebConfig",
-    "BlockType" : "CopyFiles",
+    	"BlockType" : "CopyFiles",
 	"Parameters" : [
 		{
 			"SourcePath" : "web.config",
